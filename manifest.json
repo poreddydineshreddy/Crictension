@@ -1,0 +1,13 @@
+{
+  "name":"Crictension",
+  "version":"1.0.0",
+  "description":"Catch lives scores Anywhere",
+  "manifest_version":3,
+  "author":"Poreddy Dinesh Reddy",
+  "action":{
+    "default_popup":"index.html",
+    "default_title":"Crictension",
+    "default_icon": "logo.jpg"
+  }
+
+}
