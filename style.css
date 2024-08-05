@@ -1,0 +1,107 @@
+body {
+  min-width: 300px;
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  width: 100%;
+  background-color: #3f51b5;
+  color: white;
+  padding: 10px 0;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+nav {
+  margin-top: 10px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 10px;
+  font-weight: bold;
+}
+
+.sub-header {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.sub-header h2 {
+  font-size: 24px;
+  margin: 0;
+}
+
+#status {
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+#matches {
+  list-style-type: none;
+  padding: 0;
+  max-width: 600px;
+  width: 100%;
+}
+
+#matches li {
+  background-color: #fff;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.match-info {
+  flex-grow: 1;
+}
+
+.match-name {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.match-status {
+  font-size: 16px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.match-score {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.match-score-details {
+  font-size: 14px;
+  color: #555;
+}
+
+.favorite-button {
+  background-color: #ff6347;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.favorite-button:hover {
+  background-color: #ff4500;
+}

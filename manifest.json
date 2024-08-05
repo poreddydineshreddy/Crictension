@@ -6,7 +6,8 @@
   "author":"Poreddy Dinesh Reddy",
   "action":{
     "default_popup":"index.html",
-    "default_title":"Crictension"
+    "default_title":"Crictension",
+    "default_icon": "cricket.svg"
   }
 
 }
