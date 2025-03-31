@@ -1,10 +1,43 @@
-// Function to save favorites to localStorage
+// Function to save favorites to Chrome storage
 export function saveFavorites(favorites) {
+  // Store in localStorage for compatibility
   localStorage.setItem('favorites', JSON.stringify(favorites));
+  
+  // Store in Chrome storage for background access
+  if (typeof chrome !== 'undefined' && chrome.storage) {
+    chrome.storage.local.set({ favorites });
+  }
 }
 
-// Function to get favorites from localStorage
+// Function to get favorites from storage
 export function getFavoritesFromStorage() {
+  // First try Chrome storage, fall back to localStorage
+  return new Promise((resolve) => {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.get(['favorites'], (result) => {
+        if (result.favorites) {
+          resolve(result.favorites);
+        } else {
+          // Fall back to localStorage
+          const favoritesJSON = localStorage.getItem('favorites');
+          const favorites = favoritesJSON ? JSON.parse(favoritesJSON) : [];
+          // Also save to Chrome storage for next time
+          if (favorites.length > 0) {
+            chrome.storage.local.set({ favorites });
+          }
+          resolve(favorites);
+        }
+      });
+    } else {
+      // No Chrome storage available, use localStorage
+      const favoritesJSON = localStorage.getItem('favorites');
+      resolve(favoritesJSON ? JSON.parse(favoritesJSON) : []);
+    }
+  });
+}
+
+// Synchronous version for internal use
+function getFavoritesSync() {
   const favoritesJSON = localStorage.getItem('favorites');
   return favoritesJSON ? JSON.parse(favoritesJSON) : [];
 }
@@ -29,7 +62,17 @@ function isMatchHappeningSoon(match) {
 
 // Function to show browser notification
 function showNotification(match) {
-  if (Notification.permission === "granted") {
+  if (typeof chrome !== 'undefined' && chrome.notifications) {
+    // Use Chrome notifications API
+    chrome.notifications.create(`match-${match.id}`, {
+      type: "basic",
+      iconUrl: "icons/icon128.png",
+      title: "Cricket Match Alert",
+      message: `${match.name} starts soon at ${new Date(match.startTime).toLocaleTimeString()}`,
+      priority: 2
+    });
+  } else if (Notification.permission === "granted") {
+    // Fall back to browser notifications
     const notification = new Notification(`Match Alert: ${match.name}`, {
       body: `Match starts soon at ${new Date(match.startTime).toLocaleTimeString()}`,
       icon: "cricket.svg"
@@ -48,11 +91,14 @@ function showNotification(match) {
 }
 
 // Function to handle favorite match selection
-export function handleFavoriteSelection(event, currentMatches) {
+export async function handleFavoriteSelection(event, currentMatches) {
   const button = event.currentTarget;
   const matchId = button.dataset.matchId;
   const matchName = button.dataset.matchName;
-  const favorites = getFavoritesFromStorage();
+  
+  // Get existing favorites
+  const favoritesPromise = getFavoritesFromStorage();
+  const favorites = await favoritesPromise;
   const existingFavoriteIndex = favorites.findIndex(favorite => favorite.id === matchId);
 
   if (existingFavoriteIndex !== -1) {
@@ -94,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Function to display the favorites list
-function displayFavorites() {
+async function displayFavorites() {
   const favoritesList = document.querySelector('.favorites');
   const noFavoritesElement = document.getElementById('no-favorites');
   
@@ -103,7 +149,7 @@ function displayFavorites() {
     return;
   }
 
-  const favorites = getFavoritesFromStorage();
+  const favorites = await getFavoritesFromStorage();
 
   if (favorites.length === 0) {
     favoritesList.innerHTML = '';
@@ -134,11 +180,12 @@ function displayFavorites() {
     `).join('');
 
     document.querySelectorAll('.favorite-button').forEach(button => {
-      button.addEventListener('click', (event) => {
+      button.addEventListener('click', async (event) => {
         const li = event.currentTarget.closest('li');
-        handleFavoriteSelection(event, []);
+        await handleFavoriteSelection(event, []);
         
         // Animate removal
+        li.style.transition = 'all 0.3s ease';
         li.style.opacity = '0';
         li.style.height = '0';
         li.style.marginTop = '0';

@@ -23,6 +23,10 @@ async function getMatchData() {
   statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading matches...';
 
   try {
+    // Load favorites first
+    const favorites = await getFavoritesFromStorage();
+    
+    // Fetch match data
     const response = await fetch("https://api.cricapi.com/v1/currentMatches?apikey=78d29145-c822-431c-8634-28a0e9c4fd14&offset=0");
     const data = await response.json();
 
@@ -37,7 +41,6 @@ async function getMatchData() {
       return [];
     }
 
-    const favorites = getFavoritesFromStorage();
     const relevantData = matchesList.map(match => {
       const matchId = match.id || match.unique_id;
       const matchName = match.name || "Unknown";
@@ -96,9 +99,9 @@ async function getMatchData() {
 
     // Add event listeners for favorite selection
     document.querySelectorAll('.favorite-button').forEach(button => {
-      button.addEventListener('click', (event) => {
+      button.addEventListener('click', async (event) => {
         const target = event.currentTarget;
-        handleFavoriteSelection(event, relevantData);
+        await handleFavoriteSelection(event, relevantData);
         
         // Update the star icon
         const starIcon = target.querySelector('i');
