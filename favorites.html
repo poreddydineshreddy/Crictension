@@ -5,19 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Favorites - Crictension</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1>Crictension</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="favorites.html">Favorites</a>
-        </nav>
-    </header>
-    <div class="header">
-        <h1>Favorites</h1>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="cricket.svg" alt="Cricket" class="logo-icon">
+                <h1>Crictension</h1>
+            </div>
+            <nav>
+                <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="favorites.html" class="active"><i class="fas fa-star"></i> Favorites</a>
+            </nav>
+        </header>
+        
+        <main>
+            <div class="section-header">
+                <h2><i class="fas fa-star"></i> Your Favorites</h2>
+                <div class="refresh-button" id="refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+            </div>
+            
+            <div id="no-favorites" class="status-container" style="display: none;">
+                <p><i class="fas fa-info-circle"></i> No favorite matches yet.</p>
+                <a href="index.html" class="view-details">Go to Home to add favorites</a>
+            </div>
+            
+            <div class="matches-container">
+                <ul class="favorites match-list"></ul>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Made with <i class="fas fa-heart"></i> by Poreddy Dinesh Reddy</p>
+        </footer>
     </div>
-    <ul class="favorites"></ul>
+    
     <script type="module" src="favorites.js"></script>
 </body>
 </html>

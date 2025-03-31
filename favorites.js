@@ -30,19 +30,17 @@ function isMatchHappeningSoon(match) {
 // Function to show browser notification
 function showNotification(match) {
   if (Notification.permission === "granted") {
-    const notification = new Notification(`Reminder: ${match.name}`, {
-      body: `Match starts soon (${match.startTime})`,
-      icon: "path/to/icon.png" // Path to your notification icon
+    const notification = new Notification(`Match Alert: ${match.name}`, {
+      body: `Match starts soon at ${new Date(match.startTime).toLocaleTimeString()}`,
+      icon: "cricket.svg"
     });
 
     notification.onclick = () => {
-      // Handle notification click, e.g., open a new tab with match details
-      window.open(`match-details.html?id=${match.id}`, "_blank");
+      window.focus();
     };
   } else if (Notification.permission !== "denied") {
     Notification.requestPermission().then(permission => {
       if (permission === "granted") {
-        // Retry showing notification after permission granted
         showNotification(match);
       }
     });
@@ -51,54 +49,115 @@ function showNotification(match) {
 
 // Function to handle favorite match selection
 export function handleFavoriteSelection(event, currentMatches) {
-  const matchId = event.target.dataset.matchId;
+  const button = event.currentTarget;
+  const matchId = button.dataset.matchId;
+  const matchName = button.dataset.matchName;
   const favorites = getFavoritesFromStorage();
-  const existingFavorite = favorites.find(favorite => favorite.id === matchId);
+  const existingFavoriteIndex = favorites.findIndex(favorite => favorite.id === matchId);
 
-  if (existingFavorite) {
+  if (existingFavoriteIndex !== -1) {
     // Remove from favorites if already selected
-    const updatedFavorites = favorites.filter(favorite => favorite.id !== matchId);
-    saveFavorites(updatedFavorites);
-    event.target.textContent = 'Add to Favorites';
+    favorites.splice(existingFavoriteIndex, 1);
+    saveFavorites(favorites);
   } else {
     // Add to favorites if not already selected
-    const matchName = event.target.dataset.matchName;
-    favorites.push({ id: matchId, name: matchName });
+    favorites.push({ 
+      id: matchId, 
+      name: matchName,
+      dateAdded: new Date().toISOString()
+    });
     saveFavorites(favorites);
-    event.target.textContent = 'Remove from Favorites';
   }
 
-  // Display notifications for favorites
-  displayFavoriteMatchNotifications(favorites, currentMatches);
+  // If we have valid match data, check for notifications
+  if (Array.isArray(currentMatches) && currentMatches.length > 0) {
+    displayFavoriteMatchNotifications(favorites, currentMatches);
+  }
+
+  return favorites;
 }
 
-// On the favorites page, display the list of favorite matches
+// Initialize refresh button functionality
 document.addEventListener('DOMContentLoaded', () => {
+  const refreshButton = document.getElementById('refresh');
+  if (refreshButton) {
+    refreshButton.addEventListener('click', () => {
+      const button = refreshButton.querySelector('i');
+      button.classList.add('fa-spin');
+      displayFavorites();
+      setTimeout(() => button.classList.remove('fa-spin'), 1000);
+    });
+  }
+  
+  // Display favorites initially
+  displayFavorites();
+});
+
+// Function to display the favorites list
+function displayFavorites() {
   const favoritesList = document.querySelector('.favorites');
+  const noFavoritesElement = document.getElementById('no-favorites');
   
   if (!favoritesList) {
     console.error('Favorites list element not found!');
-    
+    return;
   }
 
   const favorites = getFavoritesFromStorage();
 
   if (favorites.length === 0) {
-    favoritesList.innerHTML = '<li>No favorite matches added yet.</li>';
+    favoritesList.innerHTML = '';
+    if (noFavoritesElement) {
+      noFavoritesElement.style.display = 'block';
+    }
   } else {
+    if (noFavoritesElement) {
+      noFavoritesElement.style.display = 'none';
+    }
+    
     favoritesList.innerHTML = favorites.map(favorite => `
       <li>
         <div class="match-info">
-          <div>
-            <p class="match-name" data-match-id="${favorite.id}" data-match-name="${favorite.name}">${favorite.name}</p>
+          <div class="match-name" data-match-id="${favorite.id}">${favorite.name}</div>
+          <div class="match-score-details">
+            <i class="fas fa-clock"></i> Added on ${new Date(favorite.dateAdded || Date.now()).toLocaleDateString()}
           </div>
         </div>
-        <button class="favorite-button" data-match-id="${favorite.id}" data-match-name="${favorite.name}">Remove from Favorites</button>
+        <div class="match-actions">
+          <button class="favorite-button active" 
+                  data-match-id="${favorite.id}" 
+                  data-match-name="${favorite.name}">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
       </li>
     `).join('');
 
     document.querySelectorAll('.favorite-button').forEach(button => {
-      button.addEventListener('click', (event) => handleFavoriteSelection(event, favorites));
+      button.addEventListener('click', (event) => {
+        const li = event.currentTarget.closest('li');
+        handleFavoriteSelection(event, []);
+        
+        // Animate removal
+        li.style.opacity = '0';
+        li.style.height = '0';
+        li.style.marginTop = '0';
+        li.style.marginBottom = '0';
+        li.style.paddingTop = '0';
+        li.style.paddingBottom = '0';
+        
+        // Remove element after animation
+        setTimeout(() => {
+          li.remove();
+          // Check if we need to show "no favorites" message
+          if (document.querySelectorAll('.favorites li').length === 0) {
+            if (noFavoritesElement) {
+              noFavoritesElement.style.display = 'block';
+            }
+          }
+        }, 300);
+      });
     });
   }
-});
+}
+
