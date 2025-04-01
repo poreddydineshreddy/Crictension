@@ -8,17 +8,17 @@
     "default_popup": "index.html",
     "default_title": "Crictension - Live Cricket Scores",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "./logo.jpg",
+      "32": "./logo.jpg",
+      "48": "./logo.jpg",
+      "128": "./logo.jpg"
     }
   },
   "icons": {
-    "16": "icons/icon16.png",
-    "32": "icons/icon32.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "./logo.jpg",
+      "32": "./logo.jpg",
+      "48": "./logo.jpg",
+      "128": "./logo.jpg"
   },
   "permissions": [
     "notifications",
